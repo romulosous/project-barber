@@ -12,11 +12,13 @@ import {
 } from "@/app/_components/ui/sheet";
 import { Barbershop, Service } from "@prisma/client";
 import { ptBR } from "date-fns/locale";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { generateDayTimeList } from "../_helpers/hours";
-import { format } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
+import { saveBooking } from "../_actions/save-booking";
+import { Loader2 } from "lucide-react";
 
 interface ServiceItemProps {
   barbershop: Barbershop;
@@ -29,15 +31,48 @@ const ServiceItem = ({
   barbershop,
   isAuthenticated,
 }: ServiceItemProps) => {
+  const { data } = useSession();
+
   const [date, setDate] = useState<Date | undefined>();
   const [hour, setHour] = useState<string | undefined>("09:00");
+  const [submitIsLoading, setSubmitIsLoading] = useState(false);
 
-  const handleBookClick = () => {
+  const handleBookingClick = () => {
     if (!isAuthenticated) {
       return signIn("google");
     }
 
     // TODO: implementar a reserva (modal de agendamento)
+  };
+
+  const handleBookingSubmit = async () => {
+    try {
+      if (!date || !hour || !data?.user) {
+        return;
+      }
+      setSubmitIsLoading(true);
+      // O correto é salvar a data no banco em formato UTC (sem timezone). O primas ja faz isso por padrão.
+      // prisma: 2024-06-19T12:00:00.000Z
+      // newDate:  Wed Jun 19 2024 09:00:00 GMT-0300 (Horário Padrão de Brasília)
+
+      const dateHour = Number(hour.split(":")[0]);
+      const dateMinutes = Number(hour.split(":")[1]);
+
+      console.log("newDate", date);
+      console.log("user", data.user);
+      const newDate = setMinutes(setHours(date, dateHour), dateMinutes);
+      console.log("newDate", newDate);
+      await saveBooking({
+        serviceId: service.id,
+        barbershopId: barbershop.id,
+        userId: (data.user as any).id,
+        date: newDate,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitIsLoading(false);
+    }
   };
 
   const handleDateClick = (date: Date | undefined) => {
@@ -81,7 +116,7 @@ const ServiceItem = ({
 
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button onClick={handleBookClick} variant="secondary">
+                  <Button onClick={handleBookingClick} variant="secondary">
                     Reservar
                   </Button>
                 </SheetTrigger>
@@ -178,7 +213,13 @@ const ServiceItem = ({
                   </div>
 
                   <SheetFooter className="px-5">
-                    <Button disabled={!hour || !date}>Confirmar reserva</Button>
+                    <Button
+                      onClick={handleBookingSubmit}
+                      disabled={!hour || !date || submitIsLoading}
+                    >
+                      {submitIsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Confirmar reserva
+                    </Button>
                   </SheetFooter>
                 </SheetContent>
               </Sheet>
