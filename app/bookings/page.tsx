@@ -13,18 +13,40 @@ const BookingsPage = async () => {
     return redirect("/");
   }
 
-  const bookings = await db.booking.findMany({
-    where: {
-      userId: (session.user as any).id,
-    },
-    include: {
-      barbershop: true,
-      service: true,
-    },
-  });
+  const [confirmedBookings, finishedBookings] = await Promise.all([
+    db.booking.findMany({
+      where: {
+        userId: (session.user as any).id,
+        date: {
+          gte: new Date(),
+        },
+      },
+      include: {
+        barbershop: true,
+        service: true,
+      },
+    }),
 
-  const confirmedBookings = bookings.filter((booking) => isFuture(booking.date));
-  const finishedBookings = bookings.filter((booking) => isPast(booking.date));
+    db.booking.findMany({
+      where: {
+        userId: (session.user as any).id,
+        date: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        barbershop: true,
+        service: true,
+      },
+    }),
+  ]);
+
+  //   É melhor fazer na query do banco de dados do que no front-end, porque no front-end você pode ter um monte de dados que não são necessários
+  //  e validações que pesam no servidor
+
+  // gasta memoria no servidor
+  //   const confirmedBookings = bookings.filter((booking) => isFuture(booking.date));
+  //   const finishedBookings = bookings.filter((booking) => isPast(booking.date));
 
   return (
     <>
