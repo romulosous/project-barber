@@ -41,6 +41,10 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased h-screen flex flex-col;
+    @apply bg-background text-foreground antialiased h-screen flex flex-col h-full;
+  }
+
+  html {
+    @apply h-full;
   }
 }

@@ -110,11 +110,25 @@ const ServiceItem = ({
   const timeList = useMemo(() => {
     if (!date) return [];
 
+    const newDate = new Date();
+    const currentDay = newDate.getDate();
+    const selectedDay = date.getDate();
+
+    const currentHour = newDate.getHours();
+    const currentMinutes = newDate.getMinutes();
+
     return generateDayTimeList(date).filter((time) => {
       // time: 09:00
       // se houver algum horário que já foi reservado, ele não deve aparecer na lista
       const timeHour = Number(time.split(":")[0]);
       const timeMinutes = Number(time.split(":")[1]);
+
+      // Se for o mesmo dia, verificar se o horário já passou
+      if (currentDay === selectedDay) {
+        if (timeHour < currentHour || (timeHour === currentHour && timeMinutes <= currentMinutes)) {
+            return false;
+        }
+    }
 
       const booking = dayBookings.find((booking) => {
         const bookingHour = booking.date.getHours();
