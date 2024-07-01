@@ -23,14 +23,14 @@ const BarbershopPage = async ({ searchParams }: BarbershopPageProps) => {
     },
   });
 
-  console.log(barbershops);
   return (
     <>
       <Header />
-      <div className="px-5 mt-6">
-        <Search />
-      </div>
-      <div className="px-5 py-6">
+
+      <div className="px-5 py-6 flex flex-col gap-6">
+        <Search defaultValues={{
+            search: searchParams.search,
+        }} />
         <h1 className="text-gray-400 font-bold text-xs uppercase">
           Resultados para &quot;{searchParams.search}&quot;{" "}
         </h1>
