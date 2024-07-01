@@ -8,24 +8,26 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <Card>
-      <CardContent className="flex justify-between flex-row items-center p-5">
-        <Link href="/">
-          <Image src="/logo.png" alt="Logo Barber" height={22} width={120} />
-        </Link>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <MenuIcon size={18} />
-            </Button>
-          </SheetTrigger>
+    <header>
+      <Card>
+        <CardContent className="flex justify-between flex-row items-center p-5">
+          <Link href="/">
+            <Image src="/logo.png" alt="Logo Barber" height={22} width={120} />
+          </Link>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MenuIcon size={18} />
+              </Button>
+            </SheetTrigger>
 
-          <SheetContent className="p-0">
-            <SideMenu />
-          </SheetContent>
-        </Sheet>
-      </CardContent>
-    </Card>
+            <SheetContent className="p-0">
+              <SideMenu />
+            </SheetContent>
+          </Sheet>
+        </CardContent>
+      </Card>
+    </header>
   );
 };
 
