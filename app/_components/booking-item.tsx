@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import BookingInfo from "./booking-info";
 
 interface BookingItemProps {
   booking: Prisma.BookingGetPayload<{
@@ -129,35 +130,14 @@ const BookingItem = ({ booking }: BookingItemProps) => {
           >
             {isBookingConfirmed ? "Confirmado" : "Finalizado"}
           </Badge>
-          <Card>
-            <CardContent className="p-3 flex flex-col gap-3">
-              <div className="flex justify-between">
-                <h2 className="flex justify-between">{booking.service.name}</h2>
-                <h3 className="font-bold text-sm">
-                  {Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(Number(booking.service.price))}
-                </h3>
-              </div>
 
-              <div className="flex justify-between">
-                <h3 className="text-gray-400 text-sm">Data</h3>
-                <h4 className="text-sm">
-                  {format(booking.date, "dd 'de' MMMM", { locale: ptBR })}
-                </h4>
-              </div>
-              <div className="flex justify-between">
-                <h3 className="text-gray-400 text-sm">Horário</h3>
-                <h4 className="text-sm">{format(booking.date, "hh:mm")}</h4>
-              </div>
-
-              <div className="flex justify-between">
-                <h3 className="text-gray-400 text-sm">Barbearia</h3>
-                <h4 className="text-sm">{booking.barbershop?.name}</h4>
-              </div>
-            </CardContent>
-          </Card>
+          <BookingInfo
+            booking={{
+              barbershop: booking.barbershop,
+              service: booking.service,
+              date: booking.date,
+            }}
+          />
 
           <SheetFooter className="flex-row gap-3 mt-6">
             <SheetClose asChild>
@@ -180,7 +160,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
               </AlertDialogTrigger>
               <AlertDialogContent className="w-[90%]">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Deseja mesmo cancelar essa reserva?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    Deseja mesmo cancelar essa reserva?
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
                     Uma vez cancelada, não será possível reverter essa ação.
                   </AlertDialogDescription>

@@ -22,6 +22,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { getDayBookings } from "../_actions/get-bookings";
+import BookingInfo from "@/app/_components/booking-info";
 
 interface ServiceItemProps {
   barbershop: Barbershop;
@@ -42,7 +43,6 @@ const ServiceItem = ({
   const [submitIsLoading, setSubmitIsLoading] = useState(false);
   const [sheetIsOpen, setSheetIsOpen] = useState(false);
   const [dayBookings, setDayBookings] = useState<Booking[]>([]);
-
 
   useEffect(() => {
     if (!date) return;
@@ -125,10 +125,13 @@ const ServiceItem = ({
 
       // Se for o mesmo dia, verificar se o horário já passou
       if (currentDay === selectedDay) {
-        if (timeHour < currentHour || (timeHour === currentHour && timeMinutes <= currentMinutes)) {
-            return false;
+        if (
+          timeHour < currentHour ||
+          (timeHour === currentHour && timeMinutes <= currentMinutes)
+        ) {
+          return false;
         }
-    }
+      }
 
       const booking = dayBookings.find((booking) => {
         const bookingHour = booking.date.getHours();
@@ -230,41 +233,19 @@ const ServiceItem = ({
                   )}
 
                   <div className="py-6 px-5 border-t border-solid border-secondary">
-                    <Card>
-                      <CardContent className="p-3 flex flex-col gap-3">
-                        <div className="flex justify-between">
-                          <h2 className="flex justify-between">
-                            {service.name}
-                          </h2>
-                          <h3 className="font-bold text-sm">
-                            {Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(Number(service.price))}
-                          </h3>
-                        </div>
-
-                        {date && (
-                          <div className="flex justify-between">
-                            <h3 className="text-gray-400 text-sm">Data</h3>
-                            <h4 className="text-sm">
-                              {format(date, "dd 'de' MMMM", { locale: ptBR })}
-                            </h4>
-                          </div>
-                        )}
-                        {hour && (
-                          <div className="flex justify-between">
-                            <h3 className="text-gray-400 text-sm">Horário</h3>
-                            <h4 className="text-sm">{hour}</h4>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between">
-                          <h3 className="text-gray-400 text-sm">Barbearia</h3>
-                          <h4 className="text-sm">{barbershop?.name}</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <BookingInfo
+                      booking={{
+                        barbershop: barbershop,
+                        service: service,
+                        date:
+                          date && hour
+                            ? setMinutes(
+                                setHours(date, Number(hour.split(":")[0])),
+                                Number(hour.split(":")[1])
+                              )
+                            : undefined,
+                      }}
+                    />
                   </div>
 
                   <SheetFooter className="px-5">
